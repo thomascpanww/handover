@@ -1,0 +1,129 @@
+{
+  "migrate_daily_teem_data": {
+    "spa_rds_conn": "spa-data-aggregation-rds",
+    "owner": "spa",
+    "dst_schema": "test_002",
+    "step_configs": {
+      "daily": {
+        "Steps": [
+          {
+            "ActionOnFailure": "TERMINATE_CLUSTER",
+            "HadoopJarStep": {
+              "Args": [
+                "spark-submit",
+                "--deploy-mode",
+                "cluster",
+                "--conf",
+                "spark.sql.session.timeZone=UTC",
+                "--class",
+                "com.wework.spa.csvtoparquet.job.IncrementalMigration",
+                "s3://spa-etl-test/migration-test/jars/csv-to-parquet.jar"
+              ],
+              "Jar": "command-runner.jar"
+            },
+            "Name": "Teem Daily Migration"
+          }
+        ]        
+      },
+      "weekly": {
+        "Steps": [
+          {
+            "ActionOnFailure": "TERMINATE_CLUSTER",
+            "HadoopJarStep": {
+              "Args": [
+                "spark-submit",
+                "--deploy-mode",
+                "cluster",
+                "--conf",
+                "spark.sql.session.timeZone=UTC",
+                "--class",
+                "com.wework.spa.csvtoparquet.job.SnapshotMigration",
+                "s3://spa-etl-test/migration-test/jars/csv-to-parquet.jar"
+              ],
+              "Jar": "command-runner.jar"
+            },
+            "Name": "Teem Weekly Migration"
+          }
+        ]
+      },
+      "postgres": {
+        "Steps": [
+          {
+             "ActionOnFailure": "TERMINATE_CLUSTER",
+             "HadoopJarStep": {
+                "Args": [
+                   "spark-submit",
+                   "--master",
+                   "yarn",
+                   "--deploy-mode",
+                   "cluster",
+                   "--jars",
+                   "s3://spa-etl-test/migration-test/jars/postgresql-42.2.6.jar",
+                   "--conf",
+                   "spark.sql.session.timeZone=UTC",
+                   "--conf",
+                   "spark.network.timeout=10000000",
+                   "--conf",
+                   "spark.sql.codegen.wholeStage=false",
+                   "--conf",
+                   "spark.default.parallelism=1000",
+                   "--conf",
+                   "spark.driver.maxResultSize=5g",
+                   "--conf",
+                   "spark.driver.extraClassPath=/usr/lib/hadoop-lzo/lib/*:/usr/lib/hadoop/hadoop-aws.jar:/usr/share/aws/aws-java-sdk/*:/usr/share/aws/emr/emrfs/conf:/usr/share/aws/emr/emrfs/lib/*:/usr/share/aws/emr/emrfs/auxlib/*:/usr/share/aws/emr/security/conf:/usr/share/aws/emr/security/lib/*:/usr/share/aws/hmclient/lib/aws-glue-datacatalog-spark-client.jar:/usr/share/java/Hive-JSON-Serde/hive-openx-serde.jar:/usr/share/aws/sagemaker-spark-sdk/lib/sagemaker-spark-sdk.jar:/usr/share/aws/emr/s3select/lib/emr-s3-select-spark-connector.jar:/usr/lib/postgresql-42/*",
+                   "--conf",
+                   "spark.driver.extraLibraryPath=/usr/lib/hadoop/lib/native:/usr/lib/hadoop-lzo/lib/native:/usr/lib/postgresql-42/*",
+                   "--conf",
+                   "spark.executor.extraClassPath=/usr/lib/hadoop-lzo/lib/*:/usr/lib/hadoop/hadoop-aws.jar:/usr/share/aws/aws-java-sdk/*:/usr/share/aws/emr/emrfs/conf:/usr/share/aws/emr/emrfs/lib/*:/usr/share/aws/emr/emrfs/auxlib/*:/usr/share/aws/emr/security/conf:/usr/share/aws/emr/security/lib/*:/usr/share/aws/hmclient/lib/aws-glue-datacatalog-spark-client.jar:/usr/share/java/Hive-JSON-Serde/hive-openx-serde.jar:/usr/share/aws/sagemaker-spark-sdk/lib/sagemaker-spark-sdk.jar:/usr/share/aws/emr/s3select/lib/emr-s3-select-spark-connector.jar:/usr/lib/postgresql-42/*",
+                   "--conf",
+                   "spark.executor.extraLibraryPath=/usr/lib/hadoop/lib/native:/usr/lib/hadoop-lzo/lib/native:/usr/lib/postgresql-42/*",
+                   "--class",
+                   "com.wework.spa.csvtoparquet.job.PostgresMigration",
+                   "s3://spa-etl-test/migration-test/jars/csv-to-parquet.jar"
+                ],
+                "Jar": "command-runner.jar"
+             },
+             "Name": "Teem Postgres Migration"
+          },
+          {
+             "ActionOnFailure": "TERMINATE_CLUSTER",
+             "HadoopJarStep": {
+                "Args": [
+                   "spark-submit",
+                   "--master",
+                   "yarn",
+                   "--deploy-mode",
+                   "cluster",
+                   "--jars",
+                   "s3://spa-etl-test/migration-test/jars/postgresql-42.2.6.jar",
+                   "--conf",
+                   "spark.sql.session.timeZone=UTC",
+                   "--conf",
+                   "spark.network.timeout=10000000",
+                   "--conf",
+                   "spark.sql.codegen.wholeStage=false",
+                   "--conf",
+                   "spark.default.parallelism=1000",
+                   "--conf",
+                   "spark.driver.maxResultSize=5g",
+                   "--conf",
+                   "spark.driver.extraClassPath=/usr/lib/hadoop-lzo/lib/*:/usr/lib/hadoop/hadoop-aws.jar:/usr/share/aws/aws-java-sdk/*:/usr/share/aws/emr/emrfs/conf:/usr/share/aws/emr/emrfs/lib/*:/usr/share/aws/emr/emrfs/auxlib/*:/usr/share/aws/emr/security/conf:/usr/share/aws/emr/security/lib/*:/usr/share/aws/hmclient/lib/aws-glue-datacatalog-spark-client.jar:/usr/share/java/Hive-JSON-Serde/hive-openx-serde.jar:/usr/share/aws/sagemaker-spark-sdk/lib/sagemaker-spark-sdk.jar:/usr/share/aws/emr/s3select/lib/emr-s3-select-spark-connector.jar:/usr/lib/postgresql-42/*",
+                   "--conf",
+                   "spark.driver.extraLibraryPath=/usr/lib/hadoop/lib/native:/usr/lib/hadoop-lzo/lib/native:/usr/lib/postgresql-42/*",
+                   "--conf",
+                   "spark.executor.extraClassPath=/usr/lib/hadoop-lzo/lib/*:/usr/lib/hadoop/hadoop-aws.jar:/usr/share/aws/aws-java-sdk/*:/usr/share/aws/emr/emrfs/conf:/usr/share/aws/emr/emrfs/lib/*:/usr/share/aws/emr/emrfs/auxlib/*:/usr/share/aws/emr/security/conf:/usr/share/aws/emr/security/lib/*:/usr/share/aws/hmclient/lib/aws-glue-datacatalog-spark-client.jar:/usr/share/java/Hive-JSON-Serde/hive-openx-serde.jar:/usr/share/aws/sagemaker-spark-sdk/lib/sagemaker-spark-sdk.jar:/usr/share/aws/emr/s3select/lib/emr-s3-select-spark-connector.jar:/usr/lib/postgresql-42/*",
+                   "--conf",
+                   "spark.executor.extraLibraryPath=/usr/lib/hadoop/lib/native:/usr/lib/hadoop-lzo/lib/native:/usr/lib/postgresql-42/*",
+                   "--class",
+                   "com.wework.spa.csvtoparquet.job.AggregateMigration",
+                   "s3://spa-etl-test/migration-test/jars/csv-to-parquet.jar"
+                ],
+                "Jar": "command-runner.jar"
+             },
+             "Name": "Teem Aggregate Migration"
+          }
+        ]
+      }
+    }
+  }
+}

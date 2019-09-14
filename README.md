@@ -27,7 +27,6 @@ Summary:
 Link: [https://github.com/WeConnect/maestro-spa/pull/77](https://github.com/WeConnect/maestro-spa/pull/77)
 Objective: New migration flow. Pipeline starts from TEEM csv files and ends at Postgresql.
 Notes:
-
 #### Redshift Unload Settings
 Unload settings assumed for spark/athena to read csv.
 ```
@@ -69,12 +68,34 @@ Directory structure assumed for spark/athena.
 |   +-- scripts
 |   	+-- script.sh
 ```
+
+#### Configs
+See handover repo
+- migrate_daily_teem_data.json
+	- variables needed for job.
+- aws_wwss_thomas_pan_conn.json
+	- currently pass credentials in extra part of aws conn.
+	- template correct but will need to be adjusted. 
+- emr_spark_www_conn.json
+	- extra for emr_conn
+
 #### Remaining Issues
 - week_people_count aggregate query incomplete
 - hourly_space mostly complete. There seems to be an issue with timezones. DATA timestamps are in UTC, but EMR timezone is currently set as PST. There is a consistent 7 hour offset in results. Spark does automatic conversion to local timezone. However, setting ``spark.sql.session.timeZone=UTC`` does not seem to address the issue. It is unclear when it does this conversion and whether it "unconverts" it when writing. 
+- Currently manually generating tokens via okta-aws. 
 
 # spa-spark-pipelines-2
 
+### Csv to parquet #1
+
+Link: [https://github.com/thomascpanww/spa-spark-pipelines-2/pull/1](https://github.com/thomascpanww/spa-spark-pipelines-2/pull/1)
+Objective: Create spark jobs to convert csv to parquet, migrate to postgres, and run aggregation jobs. 
+Notes:
+#### Remaining Issues
+- See "remaining issues" for "maestro-spa"
+- Code needs refactoring and testing. 
+
 # Athena
+
 
 # Flink

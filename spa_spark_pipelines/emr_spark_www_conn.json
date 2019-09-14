@@ -1,0 +1,84 @@
+{
+  "Applications": [
+    {
+      "Name": "Hadoop"
+    },
+    {
+      "Name": "Spark"
+    }
+  ],
+   "BootstrapActions": [ 
+      { 
+         "Name": "Copy Postgres Driver Jar",
+         "ScriptBootstrapAction": { 
+            "Path": "s3://spa-etl-test/migration-test/scripts/script.sh"
+         }
+      }
+   ],
+  "Configurations": [
+    {
+      "Classification": "yarn-env",
+      "Properties": {},
+      "Configurations": [
+        {
+          "Classification": "export",
+          "Properties": {
+            "ENV": "production"
+          },
+          "Configurations": []
+        }
+      ]
+    }
+  ],
+  "EbsRootVolumeSize": 10,
+  "Instances": {
+    "Ec2KeyName": "ww-thomaspan",
+    "Ec2SubnetId": "subnet-334fb657",
+    "EmrManagedMasterSecurityGroup": "sg-0c4d2ec95f4c5ea65",
+    "EmrManagedSlaveSecurityGroup": "sg-030a335dcd625a01f",
+    "InstanceGroups": [
+      {
+        "EbsConfiguration": {
+          "EbsBlockDeviceConfigs": [
+            {
+              "VolumeSpecification": {
+                "SizeInGB": 32,
+                "VolumeType": "gp2"
+              },
+              "VolumesPerInstance": 1
+            }
+          ]
+        },
+        "InstanceCount": 1,
+        "InstanceRole": "MASTER",
+        "InstanceType": "m5.4xlarge",
+        "Name": "MASTER - 1"
+      },
+      {
+        "EbsConfiguration": {
+          "EbsBlockDeviceConfigs": [
+            {
+              "VolumeSpecification": {
+                "SizeInGB": 32,
+                "VolumeType": "gp2"
+              },
+              "VolumesPerInstance": 1
+            }
+          ]
+        },
+        "InstanceCount": 4,
+        "InstanceRole": "CORE",
+        "InstanceType": "m5.4xlarge",
+        "Name": "Core - 4"
+      }
+    ],
+    "TerminationProtected": false,
+    "KeepJobFlowAliveWhenNoSteps": true
+  },
+  "JobFlowRole": "EMR_EC2_DefaultRole",
+  "LogUri": "s3n://aws-logs-244784810859-us-west-1/elasticmapreduce/",
+  "Name": "Spark-Cluster",
+  "ReleaseLabel": "emr-5.26.0",
+  "ScaleDownBehavior": "TERMINATE_AT_TASK_COMPLETION",
+  "ServiceRole": "EMR_DefaultRole"
+}
